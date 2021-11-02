@@ -1,0 +1,48 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r}
+library(tidyverse)
+political <- read.csv("political.csv")
+political <- political[,c(-2, -6, -11, -12)]
+head(political, 10)
+
+str(political)
+
+table(political$year)
+table(political$party)
+
+head(which(complete.cases(political) == FALSE), 3)
+
+political[1443,]
+political[1463,]
+political[1467,]
+
+# remove NA rows 
+
+rows <- complete.cases(political)
+political <- political[rows,] # NA values removed 
+head(which(complete.cases(political) == FALSE), 3) # check
+
+MAX_VOTES <- political %>% 
+  group_by(county_fips, year) %>% 
+  summarise(Votes = max(candidatevotes))
+
+head(MAX_VOTES)
+
+POLITICAL <- inner_join(MAX_VOTES, political, by = c("Votes"="candidatevotes", "county_fips" = "county_fips", "year"="year"))
+head(POLITICAL)
+POLITICAL <- POLITICAL[, c(-3, -4, -5, -6, -8)]
+head(POLITICAL, 12)
+
+table(POLITICAL$party)
+
+
+
+```
+
