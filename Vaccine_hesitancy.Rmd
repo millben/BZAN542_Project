@@ -7,36 +7,88 @@ editor_options:
 
 
 ```{r}
+library(tidyverse)
+
+## Race and Hesitancy 
+
 Data1 <- read.csv("Vaccine_Hesitancy_for_COVID-19__County_and_local_estimates.csv")
 Data1 <- Data1[,c(-2, -18, -20, -21)] # remove county and state boundary. 
 dim(Data1)
 names(Data1)
 # Note: CVAC is a cumulative metric created by the CDC to demonstrate vaccine hesitancy. In short, it is the combination of the 3 variables describing vaccine hesitancy and a likely good candidate for our response. 
-HESITANCY <- Data1[, c(-2, -6, -7)]
-colnames(HESITANCY) <- c("FIPS", "E.Hesitant", "E.Hesitant/Unsure", "E.V.Hesitant", "CVAV", "CVAC.Cat", "Fully.Vax.6/10", "Hispanic", "Native", "Asian", "Black", "Hawaiian.Pacific", "White", "State")
+HESITANCY <- Data1[, c(-2, -6, -7, -8, -9, -10)] # drop state (keep state code), SVI (to be discretized), CVAC (we will use mean hesitancy), fully vaxxed 6/10. 
+names(HESITANCY)
+colnames(HESITANCY) <- c("FIPS", "E.Hesitant", "E.Hesitant/Unsure", "E.V.Hesitant", "Hispanic", "Native", "Asian", "Black", "Hawaiian.Pacific", "White", "State")
 head(HESITANCY)
+summary(HESITANCY)
+
+## Social Vulnerability Index 
 
 # SVI index is a metric that the CDC combines based on 15 variables included in the "SVI" dataframe. 
 Data2 <- read.csv("SVI2018_US_COUNTY.csv")
 dim(Data2)
 names(Data2) # Note: Each "E" variable is the estimate while each "M" variable is the margin of error. 
 SVI <- Data2[, c(4, 5, 7, 8, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72)] # these describe the 15 variables as percentages. 
+names(SVI)
+SVI <- SVI[, c(-1, -3, -4)] # drop county (just keep FIPS), Area in square miles (use RUCC), population. 
+names(SVI)
+colnames(SVI) <- c("FIPS", "Pov", "Unemp", "Income", "NoHSDP", "Age65", "Age17", "Disab", "SNGPNT", "MINRTY", "LIMENG", "MUnit", "Mobile", "Crowd", "NoVeh", "GroupQ")
 dim(SVI)
 names(SVI)
 head(SVI)
 summary(SVI) # There are some incorrect data points i.e. Rio Arriba NM
-# population density could be a good metric to add
 
 which(SVI$EP_DISABL > 33.6) # there is a county in Kentucky with 33% disability. Further research showed it was one of the most unhealthy counties in the US. 
 SVI[3047,]
 
-HESITANCY <- merge(HESITANCY, SVI)
-head(HESITANCY)
+## Rural-Urban Continuum Codes 
 
+Data3 <- read.csv("ruralurbancodes2013.csv")
+names(Data3)
+RUCC <- Data3[, c(-2, -3, -4, -6)] # only keep FIPS for the join and the RUCC code. 
+dim(RUCC) # Also includes counties in VI, PR 
+colnames(RUCC) <- c("FIPS", "RUCC")
+head(RUCC)
 
-## we might want to look into a county / state level metric for government & company policy on vaccines. 
-## we might also add religion and political demographics as other explanatory variables. 
-## So far, this could be used to help us to better understand vaccine hesitancy. Great policy issue if we want to do an academic pub! How can we bring in a predictive element? 
+## Joining 
+
+VACCINE_DATA <- inner_join(HESITANCY, SVI, by = c("FIPS" = "FIPS"))
+head(VACCINE_DATA)
+
+VACCINE_DATA <- inner_join(VACCINE_DATA, RUCC, by = c("FIPS" = "FIPS"))
+head(VACCINE_DATA)
+
+## Hesitancy Feature (Response)
+
+#HES <- VACCINE_DATA[,2:4]
+#head(HES)
+#HES_AVG <- apply(HES, 1, mean)
+#VACCINE_DATA <- cbind(HES_AVG, VACCINE_DATA)
+#VACCINE_DATA <- VACCINE_DATA[, c(-3, -4, -5)] # drop previous hesitancy categories 
+#head(VACCINE_DATA)
+
+## Political Affiliation 
+
+POLITICAL <- read.csv("POL_AFFIL.csv")
+head(POLITICAL)
+POLITICAL <- POLITICAL[, -1]
+colnames(POLITICAL) <- c("FIPS", "R.Years", "D.Years", "R.Cycles", "D.Cycles", "2020")
+head(POLITICAL)
+
+sum(table(POLITICAL$county.fips) > 1) # no joins, may have PR, UVI etc. Inner join should scrap. 
+rm(Data1, Data2, Data3)
+
+VACCINE_DATA <- inner_join(VACCINE_DATA, POLITICAL, by = c("FIPS" = "FIPS"))
+head(VACCINE_DATA)
+
+## DATA THUS FAR... 
+
+write.csv(VACCINE_DATA, 'VACCINE_DATA.csv')
+
+## Next steps: 
+
+# join Religion, Mandate index 
+# Hesitancy Response?? 
 
 ```
 

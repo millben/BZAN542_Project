@@ -47,7 +47,12 @@ POLITICAL <- POLITICAL %>%
   group_by(county_fips) %>% 
   summarize(RepublicanYears = sum(which(party == 'REPUBLICAN')),
             DemocraticYears = sum(which(party == 'DEMOCRAT')),
+            R = length(which(party == 'REPUBLICAN')),
+            D = length(which(party == 'DEMOCRAT')),
             '2020Vote' = party[which(year == 2020)])
+head(POLITICAL)
+
+write.csv(POLITICAL, 'POL_AFFIL.csv')
 
 ```
 
