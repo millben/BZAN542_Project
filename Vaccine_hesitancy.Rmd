@@ -90,6 +90,10 @@ write.csv(VACCINE_DATA, 'VACCINE_DATA.csv')
 # join Religion, Mandate index 
 # Hesitancy Response?? 
 
+## dropping income because we have median income
+## drop either highschool diploma or no highschool diploma because they capture the same thing
+
+
 ```
 
 
