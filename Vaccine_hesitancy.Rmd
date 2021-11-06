@@ -81,6 +81,28 @@ rm(Data1, Data2, Data3)
 VACCINE_DATA <- inner_join(VACCINE_DATA, POLITICAL, by = c("FIPS" = "FIPS"))
 head(VACCINE_DATA)
 
+## Extra Demographics 
+
+VACCINE_DATA <- read.csv("VACCINE_DATA.csv")
+VACCINE_DATA <- VACCINE_DATA[, -1]
+DEM <- read.csv("Various_County_Metrics.csv")
+sum(complete.cases(DEM)) # No null values 
+head(DEM)
+DEM <- DEM[, c(-1, -2, -3)]
+head(DEM)
+
+VACCINE_DATA <- inner_join(VACCINE_DATA, DEM, by = c("FIPS" = "fips"))
+head(VACCINE_DATA)
+summary(VACCINE_DATA) # -999 nulls 
+
+## Clean 
+
+VACCINE_DATA %>% # Rio Grande NM - drop this! 
+  filter(Pov == -999.000)
+which(VACCINE_DATA$Pov == -999)
+VACCINE_DATA <- VACCINE_DATA[-1962,]
+summary(VACCINE_DATA)
+
 ## DATA THUS FAR... 
 
 write.csv(VACCINE_DATA, 'VACCINE_DATA.csv')
