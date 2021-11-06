@@ -130,9 +130,16 @@ VACCINE_DATA$E.V.Hesitant <- NULL
 VACCINE_DATA$Hawaiian.Pacific <- NULL
 ## Native
 VACCINE_DATA$Native <- NULL
+##R.years
+VACCINE_DATA$R.Years <- NULL
+## D.Years
+VACCINE_DATA$D.Years <- NULL
 
-
+head(VACCINE_DATA)
 ## change column names that end in .x and .y
+## colnames(VACCINE_DATA) <- c("FIPS","E.Hesitant.Unsure","Hispanic","Asian","Black","White","State","Pov","Unemp","Age65","Age17","Disab","SNGPNT","MINRTY","LIMENG","MUnit","Mobile","Crowd","NoVeh","GroupQ","RUCC","R.Cycles", "D.Cycles", "X2020", "median.individ.income.2019","median.age.2019","hs.grad.2019", "bachelors.2019","vets.2019","uninsured.2019","household.has.comp.2019","household.has.smartphone.2019","household.has.broadband.2019",)
+
+## ^^ I began this code, but then realized that there was an x and y variable for each of the ones i was trying to replace (multiple columns repeated); it looks like they have the same data, but I wasn't sure. I will leave this for after we discuss it.
 ## create data dictionary
 
 ## discretized hesitancy feature
