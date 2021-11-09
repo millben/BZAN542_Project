@@ -131,8 +131,6 @@ VACCINE_DATA$Hawaiian.Pacific <- NULL
 ## Native
 VACCINE_DATA$Native <- NULL
 
-
-## change column names that end in .x and .y
 ## create data dictionary
 
 ## discretized hesitancy feature
