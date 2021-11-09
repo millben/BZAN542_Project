@@ -112,9 +112,50 @@ write.csv(VACCINE_DATA, 'VACCINE_DATA.csv')
 # join Religion, Mandate index 
 # Hesitancy Response?? 
 
-## dropping income because we have median income
-## drop either highschool diploma or no highschool diploma because they capture the same thing
 
+###### dropping columns
+## Income because we have median income
+VACCINE_DATA$Income <- NULL
+## no highschool diploma
+VACCINE_DATA$NoHSDP <- NULL
+## white_2019.x and black_2019.x
+VACCINE_DATA$white_2019.x <- NULL
+VACCINE_DATA$black_2019.x <- NULL
+## pop_2019.x
+VACCINE_DATA$pop_2019.x <- NULL
+## E.Hesitant
+VACCINE_DATA$E.Hesitant <- NULL
+## E.V.Hesitant
+VACCINE_DATA$E.V.Hesitant <- NULL
+## Hawaiian.Pacific
+VACCINE_DATA$Hawaiian.Pacific <- NULL
+## Native
+VACCINE_DATA$Native <- NULL
+
+## create data dictionary
+
+## discretized hesitancy feature
+hesitancy.disc <- c()
+for (i in 1:nrow(VACCINE_DATA)){
+  if(VACCINE_DATA$E.Hesitant.Unsure[i] >= .0499 & VACCINE_DATA$E.Hesitant.Unsure[i] <= .15) {hesitancy.disc[i] <- 1}
+  if(VACCINE_DATA$E.Hesitant.Unsure[i] >= .15 & VACCINE_DATA$E.Hesitant.Unsure[i] <= .19) {hesitancy.disc[i] <- 2}
+  if(VACCINE_DATA$E.Hesitant.Unsure[i] >= .19 & VACCINE_DATA$E.Hesitant.Unsure[i] <= .23) {hesitancy.disc[i] <- 3}
+  if(VACCINE_DATA$E.Hesitant.Unsure[i] >= .23 & VACCINE_DATA$E.Hesitant.Unsure[i] <= .33) {hesitancy.disc[i] <- 4}
+}
+VACCINE_DATA$hesitancy.disc <- hesitancy.disc ## adding column to dataset
+
+summary(VACCINE_DATA$hesitancy.disc) ## checking to see if discretization resulted in any NAs
+
+
+## models:
+# linear regression -- Patrick
+# logistic lasso - Ben
+# random forest --- Ben
+  # discretized vaccine hesitancy
+# KNN ---- ME!! 
+  # discretized vaccine hesitancy
+  # would need to take out state data
+# SVM --- Austin
 
 ```
 
