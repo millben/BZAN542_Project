@@ -130,10 +130,13 @@ VACCINE_DATA$E.V.Hesitant <- NULL
 VACCINE_DATA$Hawaiian.Pacific <- NULL
 ## Native
 VACCINE_DATA$Native <- NULL
+## Pol doubles 
+VACCINE_DATA$R.Years <- NULL
+VACCINE_DATA$D.Years <- NULL
 
 ## create data dictionary
 
-## discretized hesitancy feature
+## discretized hesitancy feature - based on quantiles. 
 hesitancy.disc <- c()
 for (i in 1:nrow(VACCINE_DATA)){
   if(VACCINE_DATA$E.Hesitant.Unsure[i] >= .0499 & VACCINE_DATA$E.Hesitant.Unsure[i] <= .15) {hesitancy.disc[i] <- 1}
@@ -155,6 +158,13 @@ summary(VACCINE_DATA$hesitancy.disc) ## checking to see if discretization result
   # discretized vaccine hesitancy
   # would need to take out state data
 # SVM --- Austin
+
+VACCINE_DATA <- VACCINE_DATA[,-1] # drop X col 
+colnames(VACCINE_DATA)[3] <- "E.Hesitant"
+head(VACCINE_DATA)
+
+VACCINE_DATA <- read.csv("VACCINE_DATA.csv")
+
 
 ```
 
