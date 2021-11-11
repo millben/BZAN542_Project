@@ -111,6 +111,29 @@ summary(VACCINE_DATA)
 
 
 ###### dropping columns
+<<<<<<< HEAD
+=======
+## Income because we have median income
+VACCINE_DATA$Income <- NULL
+## no highschool diploma
+VACCINE_DATA$NoHSDP <- NULL
+## white_2019.x and black_2019.x
+VACCINE_DATA$white_2019.x <- NULL
+VACCINE_DATA$black_2019.x <- NULL
+## pop_2019.x
+VACCINE_DATA$pop_2019.x <- NULL
+## E.Hesitant
+VACCINE_DATA$E.Hesitant <- NULL
+## E.V.Hesitant
+VACCINE_DATA$E.V.Hesitant <- NULL
+## Hawaiian.Pacific
+VACCINE_DATA$Hawaiian.Pacific <- NULL
+## Native
+VACCINE_DATA$Native <- NULL
+## Pol doubles 
+VACCINE_DATA$R.Years <- NULL
+VACCINE_DATA$D.Years <- NULL
+>>>>>>> 4289237b8604cdf3a8f835673b40cb09267bc959
 
 VACCINE_DATA$Income <- NULL ## Income because we have median income
 VACCINE_DATA$NoHSDP <- NULL ## no highschool diploma
@@ -122,7 +145,7 @@ VACCINE_DATA$E.V.Hesitant <- NULL ## E.V.Hesitant
 VACCINE_DATA$Hawaiian.Pacific <- NULL ## Hawaiian.Pacific
 VACCINE_DATA$Native <- NULL ## Native
 
-## discretized hesitancy feature
+## discretized hesitancy feature - based on quantiles. 
 hesitancy.disc <- c()
 for (i in 1:nrow(VACCINE_DATA)){
   if(VACCINE_DATA$E.Hesitant.Unsure[i] >= .0499 & VACCINE_DATA$E.Hesitant.Unsure[i] <= .15) {hesitancy.disc[i] <- 1}
@@ -150,7 +173,16 @@ write.csv(VACCINE_DATA, 'VACCINE_DATA.csv')
 
 # SVM --- Austin
 
+<<<<<<< HEAD
 ## create data dictionary
+=======
+VACCINE_DATA <- VACCINE_DATA[,-1] # drop X col 
+colnames(VACCINE_DATA)[3] <- "E.Hesitant"
+head(VACCINE_DATA)
+
+VACCINE_DATA <- read.csv("VACCINE_DATA.csv")
+
+>>>>>>> 4289237b8604cdf3a8f835673b40cb09267bc959
 
 ```
 
