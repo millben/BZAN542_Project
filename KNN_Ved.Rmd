@@ -9,11 +9,79 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Reading in Data
 ```{r}
+library(regclass)
+library(caret)
+vaccine <- read.csv("VACCINE_DATA.csv")
+names(vaccine)
+vaccine$X <- NULL # dropping X column
+vaccine$State <- NULL # dropping state
+```
+
+1)  Split into training data (80%) and holdout sample (20%)
+```{r}
+train.rows <- sample(1:nrow(vaccine),0.8*nrow(vaccine))  
+TRAIN <- vaccine[train.rows,] #All model assessment has to be done on the training data
+HOLDOUT <- vaccine[-train.rows,]  #Don't look at again until final model is selected
 
 ```
 
-
+2)  how generalization error is to be estimated (10-fold crossvalidation shown here)
 ```{r}
+fitControl <- trainControl(method="cv",number=10, allowParallel = TRUE) 
+```
+
+3) Tune values for number of neighbors
+```{r}
+knnGrid <- expand.grid(k=1:50)   
+
+KNN <- train(Hesitancy.disc~.,data=TRAIN, method='knn', trControl=fitControl,tuneGrid=knnGrid,
+                             preProc = c("center", "scale"))
+
+plot(KNN) #See how error changes with choices
+KNN$bestTune #Gives best parameters
+head( KNN$results ) #Look at output in more detail (lets you see SDs)
+KNN$results[rownames(KNN$bestTune),]  #Just the row with the optimal choice of tuning parameter
+varImp(KNN)  #Variable importance scores from 0-100
+
+postResample(predict(KNN,newdata=HOLDOUT),HOLDOUT$vaccine)  #Error on holdout sample for reference
+ 
+## i dont know why the test sample data will not load!!
 
 ```
+
+Liu's way
+```{r}
+library(class)
+set.seed(1)
+dim(vaccine)
+nTotal=nrow(vaccine)
+nTrain=2488
+train <- sample(nTotal, nTrain)
+summary(vaccine)
+x=scale(vaccine[,c(1,2)])
+y=vaccine$Hesitancy.disc
+
+nearest1=knn(train=x[train,],test=x[-train,],cl=y[train],k=1)
+nearest5=knn(train=x[train,],test=x[-train,],cl=y[train],k=5)
+
+## calculate the proportion of correct classifications on this one
+## training set
+sum(y[-train]==nearest1)/(nTotal-nTrain)
+sum(y[-train]==nearest5)/(nTotal-nTrain)
+
+## cross-validation (leave one out)
+pcorr=numeric(length=10)
+for (k in 1:10) {
+  pred=knn.cv(x,y,k)
+  pcorr[k]=sum(y==pred)/nTotal
+}
+plot(pcorr,xlab='K', type="o")
+nearest7=knn(train=x[train,],test=x[-train,],cl=y[train],k=7)
+sum(y[-train]==nearest7)/(nTotal-nTrain)
+
+## does not seem to perform well even on training data?
+
+```
+
