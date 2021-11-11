@@ -63,13 +63,16 @@ summary(vaccine)
 x=scale(vaccine[,c(1,2)])
 y=vaccine$Hesitancy.disc
 
+# determining number of k: 27
+sqrt(3110)/2
+
 nearest1=knn(train=x[train,],test=x[-train,],cl=y[train],k=1)
-nearest5=knn(train=x[train,],test=x[-train,],cl=y[train],k=5)
+nearest27=knn(train=x[train,],test=x[-train,],cl=y[train],k=27)
 
 ## calculate the proportion of correct classifications on this one
 ## training set
 sum(y[-train]==nearest1)/(nTotal-nTrain)
-sum(y[-train]==nearest5)/(nTotal-nTrain)
+sum(y[-train]==nearest27)/(nTotal-nTrain)
 
 ## cross-validation (leave one out)
 pcorr=numeric(length=10)
