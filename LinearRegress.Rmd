@@ -1,0 +1,160 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+ 
+
+```{r}
+library(caret)
+
+VACCINE_DATA <- read.csv("VACCINE_DATA.csv")
+head(VACCINE_DATA)
+
+infodensity <- nearZeroVar(VACCINE_DATA, saveMetrics= TRUE) # searching for 0 variance predictors
+infodensity # There are none
+
+MODEL_DATA <- VACCINE_DATA[c(-1, -7, -34)] # remove FIPS, the state, and the discretixed response (since I am doing continuous response).
+head(MODEL_DATA)
+
+MODEL_DATA$X2020 <- ifelse(MODEL_DATA$X2020 == "DEMOCRAT", 1, 0) # dummy var for the 2020 election 
+MODEL_DATA$X2020 <- as.factor(MODEL_DATA$X2020) # categorical 
+MODEL_DATA$MedInc <- as.numeric(MODEL_DATA$MedInc) # income continuous 
+ 
+str(MODEL_DATA)
+
+## Descriptive model (NO CV)
+
+MODEL <- train(E.Hesitant~.,data = MODEL_DATA, method = "glm", trControl = trainControl(method="none"))
+summary(MODEL)
+
+## Train & Test set 
+train.rows <- sample(1:nrow(MODEL_DATA), 0.8 * nrow(MODEL_DATA)) #60% train/40% holdout
+TRAIN <- MODEL_DATA[train.rows, ]
+TEST <- MODEL_DATA[-train.rows, ]
+
+## Set up CV 
+fitControl <- trainControl(method = "cv", number = 10)
+
+## Linear Regression 
+
+LM <- train(E.Hesitant ~ ., data = TRAIN, method = 'glm', trControl = fitControl, preProc = c("center", "scale" ))
+LM$results
+
+postResample(predict(LM,newdata = TEST), TEST$E.Hesitant) # Test Performance 
+
+## Model Selection 
+
+Reduced_LM <- train(E.Hesitant ~ Hispanic + Black + Age65 + Age17 + Mobile + R.Cycles + MedInc + Uninsured + Smartphone + Computer, data = TRAIN, method = 'glm', trControl = fitControl, preProc = c("center", "scale" ))
+Reduced_LM$results
+
+postResample(predict(Reduced_LM, newdata = TEST), TEST$E.Hesitant)
+
+## SLR 
+
+SLR <- train(E.Hesitant ~ MedInc, data = TRAIN, method = 'glm', trControl = fitControl, preProc = c("center", "scale" ))
+SLR$results
+
+postResample(predict(SLR, newdata = TEST), TEST$E.Hesitant) # Test performance 
+
+## Regularized regression 
+
+glmnetGrid <- expand.grid(alpha = seq(0, 1, by = .1), lambda = 10^seq(-1, 2.1, by = 0.1)) # tuning parameters 
+
+MODEL.RR <- train(E.Hesitant ~., data = TRAIN, method = 'glmnet', tuneGrid = glmnetGrid, trControl = fitControl, preProc = c("center", "scale"))
+
+MODEL.RR$results[which.min(MODEL.RR$results$RMSE),] # best values for lambda. Performs worse than Standard regression. 
+
+postResample(predict(MODEL.RR,newdata = TEST),TEST$E.Hesitant) # Test performance 
+
+## KNN Regression 
+
+knnGrid <- expand.grid(k=1:40) # number of neighbors 
+
+KNN <- train(E.Hesitant ~ ., data = TRAIN, method = 'knn', tuneGrid = knnGrid, trControl = fitControl, preProc = c("center", "scale"))
+
+KNN$results[rownames(KNN$bestTune),] # optimal K is 7. RMSE performed worse than all other models. 
+
+postResample(predict(KNN, newdata = TEST), TEST$E.Hesitant) # Test Performance. 
+
+
+########################################################################
+
+# Not using Caret 
+
+
+## Standardizing the data 
+
+Standardized <- VACCINE_DATA[,c(-1,-2, -7, -24, -34)] # remove FIPS, response, state, discretized response, 2020 (since qualitative)
+head(Standardized)
+Standardized <- scale(Standardized) 
+var(Standardized[,1]) # Variance now 1 
+var(Standardized[,2]) # for all columns 
+
+Model_DATA <- cbind(Standardized, VACCINE_DATA[24]) # rejoin the 2020 election col
+Model_DATA <- cbind(VACCINE_DATA[2], Model_DATA) # rejoin the response 
+head(Model_DATA)
+
+## MLR 
+
+m1 <- glm(E.Hesitant ~ ., data = Model_DATA)
+plot(m1$fitted.values, Model_DATA$E.Hesitant, xlab = "Fitted Values", ylab = "E.Hesitant", col = "red")
+summary(m1)
+par(mfrow = c(2,2)) 
+plot(m1)
+
+VACCINE_DATA[2020,] # NY county 
+VACCINE_DATA[8,] # Aleutians West, AK
+VACCINE_DATA[133,] # Concho, TX 
+VACCINE_DATA[404,] # based on error 
+
+library(boot)
+
+cv.err <- cv.glm(Model_DATA, m1, K = 10) 
+sqrt(cv.err$delta[1]) # RMSE 0.0370269
+
+## Model Selection 
+
+library(leaps)
+
+b <- regsubsets(E.Hesitant ~ ., Model_DATA, nvmax = 30) 
+rs <- summary(b) 
+
+par(mfrow = c(2,2)) 
+plot(rs$adjr2, xlab = "Number of Variables", ylab = "Adjusted RSq", type = "l") 
+which.max(rs$adjr2) 
+points(25, rs$adjr2[25], col = "red", cex = 2, pch = 20) 
+
+plot(rs$bic, xlab = "Number of Variables", ylab = "BIC", type = "l") 
+which.min(rs$bic) 
+points(15, rs$bic[15], col = "red", cex = 2, pch = 20) 
+
+plot(rs$cp, xlab = "Number of Variables", ylab = "CP", type = "l") 
+which.min(rs$cp) 
+points(22, rs$cp[22], col = "red", cex = 2, pch = 20) 
+
+# improvemet is negligble after 15. 
+
+b <- regsubsets(E.Hesitant ~ ., Model_DATA, nvmax = 15) 
+rs <- summary(b) 
+rs$which[8,]
+
+m10 <- glm(E.Hesitant ~ Hispanic + Black + Age65 + Age17 + Mobile + R.Cycles + MedInc + Uninsured + Smartphone + Computer, data = Model_DATA)
+
+cv.err <- cv.glm(Model_DATA, m10, K = 10) 
+sqrt(cv.err$delta[1]) # RMSE 0.03737494
+
+m8 <- glm(E.Hesitant ~ Hispanic + Age17 + Mobile + R.Cycles + MedInc + Uninsured + Smartphone + Computer, data = Model_DATA)
+
+cv.err <- cv.glm(Model_DATA, m8, K = 10) 
+sqrt(cv.err$delta[1]) # RMSE 0.03771258
+
+m6 <- glm(E.Hesitant ~ Hispanic + Age17 + Mobile + MedInc + Smartphone + Computer, data = Model_DATA)
+
+cv.err <- cv.glm(Model_DATA, m6, K = 10) 
+sqrt(cv.err$delta[1]) # RMSE 0.03846433
+
+```
+
