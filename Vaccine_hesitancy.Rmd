@@ -43,7 +43,7 @@ SVI[3047,]
 
 ## Rural-Urban Continuum Codes 
 
-Data3 <- read.csv("ruralurbancodes2013.csv") ## i still cant run this
+Data3 <- read.csv("ruralurbancodes2013.csv")
 names(Data3)
 RUCC <- Data3[, c(-2, -3, -4, -6)] # only keep FIPS for the join and the RUCC code. 
 dim(RUCC) # Also includes counties in VI, PR 
@@ -69,7 +69,7 @@ head(VACCINE_DATA)
 
 ## Political Affiliation 
 
-POLITICAL <- read.csv("political.csv") ## changed the file name because it was different in my comp
+POLITICAL <- read.csv("POL_AFFIL.csv")
 head(POLITICAL)
 POLITICAL <- POLITICAL[, -1]
 colnames(POLITICAL) <- c("FIPS", "R.Years", "D.Years", "R.Cycles", "D.Cycles", "2020")
@@ -103,16 +103,16 @@ which(VACCINE_DATA$Pov == -999)
 VACCINE_DATA <- VACCINE_DATA[-1962,]
 summary(VACCINE_DATA)
 
-## DATA THUS FAR... 
-
-write.csv(VACCINE_DATA, 'VACCINE_DATA.csv')
 
 ## Next steps: 
 
 # join Religion, Mandate index 
 # Hesitancy Response?? 
 
+
 ###### dropping columns
+<<<<<<< HEAD
+=======
 ## Income because we have median income
 VACCINE_DATA$Income <- NULL
 ## no highschool diploma
@@ -133,8 +133,17 @@ VACCINE_DATA$Native <- NULL
 ## Pol doubles 
 VACCINE_DATA$R.Years <- NULL
 VACCINE_DATA$D.Years <- NULL
+>>>>>>> 4289237b8604cdf3a8f835673b40cb09267bc959
 
-## create data dictionary
+VACCINE_DATA$Income <- NULL ## Income because we have median income
+VACCINE_DATA$NoHSDP <- NULL ## no highschool diploma
+VACCINE_DATA$white_2019.x <- NULL ## white_2019.x and 
+VACCINE_DATA$black_2019.x <- NULL ## black_2019.x
+VACCINE_DATA$pop_2019.x <- NULL ## pop_2019.x
+VACCINE_DATA$E.Hesitant <- NULL ## E.Hesitant
+VACCINE_DATA$E.V.Hesitant <- NULL ## E.V.Hesitant
+VACCINE_DATA$Hawaiian.Pacific <- NULL ## Hawaiian.Pacific
+VACCINE_DATA$Native <- NULL ## Native
 
 ## discretized hesitancy feature - based on quantiles. 
 hesitancy.disc <- c()
@@ -148,6 +157,9 @@ VACCINE_DATA$hesitancy.disc <- hesitancy.disc ## adding column to dataset
 
 summary(VACCINE_DATA$hesitancy.disc) ## checking to see if discretization resulted in any NAs
 
+## DATA THUS FAR... 
+head(VACCINE_DATA)
+write.csv(VACCINE_DATA, 'VACCINE_DATA.csv')
 
 ## models:
 # linear regression -- Patrick
@@ -157,14 +169,9 @@ summary(VACCINE_DATA$hesitancy.disc) ## checking to see if discretization result
 # KNN ---- ME!! 
   # discretized vaccine hesitancy
   # would need to take out state data
+
+
 # SVM --- Austin
-
-VACCINE_DATA <- VACCINE_DATA[,-1] # drop X col 
-colnames(VACCINE_DATA)[3] <- "E.Hesitant"
-head(VACCINE_DATA)
-
-VACCINE_DATA <- read.csv("VACCINE_DATA.csv")
-
 
 ```
 
