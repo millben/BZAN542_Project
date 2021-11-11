@@ -173,17 +173,6 @@ write.csv(VACCINE_DATA, 'VACCINE_DATA.csv')
 
 # SVM --- Austin
 
-<<<<<<< HEAD
-## create data dictionary
-=======
-VACCINE_DATA <- VACCINE_DATA[,-1] # drop X col 
-colnames(VACCINE_DATA)[3] <- "E.Hesitant"
-head(VACCINE_DATA)
-
-VACCINE_DATA <- read.csv("VACCINE_DATA.csv")
-
->>>>>>> 4289237b8604cdf3a8f835673b40cb09267bc959
-
 ```
 
 
