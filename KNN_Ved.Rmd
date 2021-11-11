@@ -36,7 +36,7 @@ fitControl <- trainControl(method="cv",number=10, allowParallel = TRUE)
 ```{r}
 knnGrid <- expand.grid(k=1:50)   
 
-KNN <- train(Hesitancy.disc~.,data=TRAIN, method='knn', trControl=fitControl,tuneGrid=knnGrid,
+KNN <- train(as.factor(Hesitancy.disc)~.,data=TRAIN, method='knn', trControl=fitControl,tuneGrid=knnGrid,
                              preProc = c("center", "scale"))
 
 plot(KNN) #See how error changes with choices
@@ -45,9 +45,11 @@ head( KNN$results ) #Look at output in more detail (lets you see SDs)
 KNN$results[rownames(KNN$bestTune),]  #Just the row with the optimal choice of tuning parameter
 varImp(KNN)  #Variable importance scores from 0-100
 
+library(pROC)
 postResample(predict(KNN,newdata=HOLDOUT),HOLDOUT$vaccine)  #Error on holdout sample for reference
- 
-## i dont know why the test sample data will not load!!
+  ## i dont know why the test sample data will not load!!
+roc(HOLDOUT$Hesitancy.disc,predict(KNN,newdata=HOLDOUT,type="prob")[,2])
+
 
 ```
 
