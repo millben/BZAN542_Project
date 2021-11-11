@@ -103,9 +103,6 @@ which(VACCINE_DATA$Pov == -999)
 VACCINE_DATA <- VACCINE_DATA[-1962,]
 summary(VACCINE_DATA)
 
-## DATA THUS FAR... 
-
-write.csv(VACCINE_DATA, 'VACCINE_DATA.csv')
 
 ## Next steps: 
 
@@ -114,25 +111,16 @@ write.csv(VACCINE_DATA, 'VACCINE_DATA.csv')
 
 
 ###### dropping columns
-## Income because we have median income
-VACCINE_DATA$Income <- NULL
-## no highschool diploma
-VACCINE_DATA$NoHSDP <- NULL
-## white_2019.x and black_2019.x
-VACCINE_DATA$white_2019.x <- NULL
-VACCINE_DATA$black_2019.x <- NULL
-## pop_2019.x
-VACCINE_DATA$pop_2019.x <- NULL
-## E.Hesitant
-VACCINE_DATA$E.Hesitant <- NULL
-## E.V.Hesitant
-VACCINE_DATA$E.V.Hesitant <- NULL
-## Hawaiian.Pacific
-VACCINE_DATA$Hawaiian.Pacific <- NULL
-## Native
-VACCINE_DATA$Native <- NULL
 
-## create data dictionary
+VACCINE_DATA$Income <- NULL ## Income because we have median income
+VACCINE_DATA$NoHSDP <- NULL ## no highschool diploma
+VACCINE_DATA$white_2019.x <- NULL ## white_2019.x and 
+VACCINE_DATA$black_2019.x <- NULL ## black_2019.x
+VACCINE_DATA$pop_2019.x <- NULL ## pop_2019.x
+VACCINE_DATA$E.Hesitant <- NULL ## E.Hesitant
+VACCINE_DATA$E.V.Hesitant <- NULL ## E.V.Hesitant
+VACCINE_DATA$Hawaiian.Pacific <- NULL ## Hawaiian.Pacific
+VACCINE_DATA$Native <- NULL ## Native
 
 ## discretized hesitancy feature
 hesitancy.disc <- c()
@@ -146,6 +134,9 @@ VACCINE_DATA$hesitancy.disc <- hesitancy.disc ## adding column to dataset
 
 summary(VACCINE_DATA$hesitancy.disc) ## checking to see if discretization resulted in any NAs
 
+## DATA THUS FAR... 
+head(VACCINE_DATA)
+write.csv(VACCINE_DATA, 'VACCINE_DATA.csv')
 
 ## models:
 # linear regression -- Patrick
@@ -155,7 +146,11 @@ summary(VACCINE_DATA$hesitancy.disc) ## checking to see if discretization result
 # KNN ---- ME!! 
   # discretized vaccine hesitancy
   # would need to take out state data
+
+
 # SVM --- Austin
+
+## create data dictionary
 
 ```
 
